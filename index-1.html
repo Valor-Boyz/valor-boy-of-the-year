@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111111">
+<title>Valor Boy of the Year 2026</title>
+<style>
+:root{--red:#e21b2d;--black:#101010;--panel:#1b1b1b;--muted:#bdbdbd}
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:#fff;font-family:Arial,Helvetica,sans-serif}
+header{padding:34px 18px 24px;text-align:center;background:linear-gradient(135deg,#080808,#2a090d)}
+.logo{display:inline-block;border:2px solid var(--red);border-radius:50%;padding:10px 14px;color:#fff;font-weight:900;letter-spacing:2px;font-size:13px}
+h1{font-size:clamp(30px,6vw,54px);line-height:1.05;margin:18px auto 10px;text-transform:uppercase}
+h1 span{color:var(--red)}
+header p{color:#ddd;margin:0}
+main{max-width:1050px;margin:auto;padding:24px 16px 50px}
+.hero{overflow:hidden;border-radius:18px;border:1px solid #393939;background:#191919}
+.hero img{display:block;width:100%;max-height:570px;object-fit:cover}
+.caption{padding:13px 16px;color:#ddd;font-size:14px}
+.intro{text-align:center;margin:34px 0 22px}
+.intro h2{font-size:28px;margin:0 0 8px}
+.intro p{color:var(--muted);margin:0}
+.candidates{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px}
+.candidate{background:var(--panel);border:1px solid #353535;border-radius:15px;padding:20px;text-align:center}
+.number{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#351016;color:#ff6976;font-weight:bold;margin:0 auto 12px}
+.candidate h3{font-size:22px;margin:0 0 15px}
+button{border:0;border-radius:9px;background:var(--red);color:white;padding:12px 18px;font-size:15px;font-weight:bold;cursor:pointer}
+button:hover{background:#bd1020}
+button:disabled{background:#555;cursor:not-allowed}
+.results{margin-top:35px;padding:22px;background:#191919;border:1px solid #353535;border-radius:15px}
+.results h2{margin:0 0 8px}
+.note{color:var(--muted);font-size:13px;line-height:1.5}
+.result{margin:17px 0}
+.result-top{display:flex;justify-content:space-between;gap:12px;margin-bottom:7px}
+.track{height:12px;background:#383838;border-radius:99px;overflow:hidden}
+.fill{height:100%;background:var(--red);width:0%;border-radius:99px;transition:width .3s}
+#status{min-height:22px;color:#ff9aa3;font-size:14px;margin-top:14px}
+footer{text-align:center;padding:24px;color:#999;border-top:1px solid #292929;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">VALOR BOYZ</div>
+  <h1>Who is the <span>Valor Boy</span><br>of the Year?</h1>
+  <p>Valor Boyz • 2026 Awards</p>
+</header>
+<main>
+  <section class="hero">
+    <img src="valor-boyz-group.jpg" alt="The Valor Boyz group">
+    <div class="caption">The Valor Boyz — one group, one title, your vote.</div>
+  </section>
+  <section class="intro">
+    <h2>Choose your winner</h2>
+    <p>Vote for the person you think deserves the title.</p>
+  </section>
+  <section class="candidates" id="candidates" aria-label="Candidates"></section>
+  <section class="results">
+    <h2>Live vote count on this device</h2>
+    <p class="note">The bars show votes recorded in this browser. This starter website does not yet combine votes from different phones or computers.</p>
+    <div id="results"></div>
+    <div id="status" role="status" aria-live="polite"></div>
+    <button id="reset" type="button" style="background:#444;margin-top:8px">Reset votes on this device</button>
+  </section>
+</main>
+<footer>VALOR BOYZ • NO FEAR, NO LIMITS</footer>
+<script>
+const names = ["Prince","Matthew","Andile","Saleng","Kawaya","Rethabile"];
+const key = "valorBoyOfTheYearVotes2026";
+const votedKey = "valorBoyOfTheYearHasVoted2026";
+let votes = JSON.parse(localStorage.getItem(key) || "{}");
+names.forEach(n => votes[n] = Number(votes[n] || 0));
+const candidates = document.getElementById("candidates");
+const results = document.getElementById("results");
+const status = document.getElementById("status");
+function render(){
+  candidates.innerHTML = "";
+  names.forEach((name,i)=>{
+    const card=document.createElement("article");
+    card.className="candidate";
+    const num=document.createElement("div"); num.className="number"; num.textContent=String(i+1);
+    const title=document.createElement("h3"); title.textContent=name;
+    const btn=document.createElement("button"); btn.textContent="Vote for "+name;
+    btn.disabled=localStorage.getItem(votedKey)==="yes";
+    btn.addEventListener("click",()=>vote(name));
+    card.append(num,title,btn); candidates.append(card);
+  });
+  const total=names.reduce((sum,n)=>sum+votes[n],0);
+  results.innerHTML="";
+  names.forEach(name=>{
+    const count=votes[name], pct=total ? count/total*100 : 0;
+    const row=document.createElement("div"); row.className="result";
+    const top=document.createElement("div"); top.className="result-top";
+    const label=document.createElement("strong"); label.textContent=name;
+    const value=document.createElement("span"); value.textContent=count+" vote"+(count===1?"":"s");
+    const track=document.createElement("div"); track.className="track";
+    const fill=document.createElement("div"); fill.className="fill"; fill.style.width=pct+"%";
+    track.append(fill); top.append(label,value); row.append(top,track); results.append(row);
+  });
+}
+function vote(name){
+  if(localStorage.getItem(votedKey)==="yes"){status.textContent="A vote has already been recorded in this browser.";return;}
+  votes[name]++; localStorage.setItem(key,JSON.stringify(votes)); localStorage.setItem(votedKey,"yes");
+  status.textContent="Your vote for "+name+" has been recorded on this device. Thank you!";
+  render();
+}
+document.getElementById("reset").addEventListener("click",()=>{
+  if(confirm("Reset the votes saved in this browser?")){
+    names.forEach(n=>votes[n]=0);
+    localStorage.setItem(key,JSON.stringify(votes)); localStorage.removeItem(votedKey);
+    status.textContent="Votes on this device have been reset."; render();
+  }
+});
+render();
+</script>
+</body>
+</html>
